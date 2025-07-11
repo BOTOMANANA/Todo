@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+
+class ThemeProviders extends ChangeNotifier {
+  bool isDarkMode = false;
+
+  void isDarkModeActive() {
+    isDarkMode = !isDarkMode;
+    notifyListeners();
+  }
+}
+
+
+
+
+import 'package:flutter/material.dart';
+import 'package:learning_flutter/feature/todo/business/entities/todo_entity.dart';
+
+class TodoProviders extends ChangeNotifier {
+  final List<TodoEntity> _todo = [];
+
+  get todolength => _todo.length;
+
+  List<TodoEntity> get getTodoList => _todo;
+
+  void addTodo({required TodoEntity todo}) {
+    _todo.add(todo);
+    notifyListeners();
+  }
+
+  void deleteTodo({required TodoEntity todo}) {
+    _todo.remove(todo);
+    notifyListeners();
+  }
+
+  void isFinishTask({required TodoEntity finish}) {
+    finish.verifyIsDone();
+    notifyListeners();
+  }
+}

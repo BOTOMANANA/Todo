@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:learning_flutter/feature/todo/presentation/pages/add_todo_page.dart';
+import 'package:learning_flutter/feature/todo/presentation/providers/theme_providers.dart';
+import 'package:learning_flutter/feature/todo/presentation/providers/todo_providers.dart';
+import 'package:provider/provider.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
+
+class ListTodoPage extends StatefulWidget {
+  const ListTodoPage({super.key});
+
+  @override
+  State<ListTodoPage> createState() => _ListTodoPageState();
+}
+
+class _ListTodoPageState extends State<ListTodoPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<ThemeProviders, TodoProviders>(
+      builder: (context, appTheme, todoData, child) {
+        return Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            title: Text('Todo List'),
+            centerTitle: true,
+
+            actions: [
+              IconButton(
+                onPressed: () => appTheme.isDarkModeActive(),
+                icon:
+                    appTheme.isDarkMode
+                        ? Icon(Icons.dark_mode_rounded)
+                        : Icon(Icons.light_mode_rounded),
+              ),
+            ],
+          ),
+
+          body:
+              (todoData.getTodoList.isNotEmpty)
+                  ? taskList(instanceProvider: todoData)
+                  : emptyTask(),
+
+          floatingActionButton: floatingButton(context),
+        );
+      },
+    );
+  }
+}
+
+Widget taskList({required TodoProviders instanceProvider}) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 15.0),
+    child: ListView.builder(
+      //je modifie pas encore sure affiche une image du  si ma liste est vide
+      itemCount: instanceProvider.todolength,
+      itemBuilder: (context, index) {
+        final todoList = instanceProvider.getTodoList[index];
+        return Padding(
+          padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 6.0),
+          child: GestureDetector(
+            onHorizontalDragEnd: (details) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.info,
+                title: 'Are you sure to delete',
+                confirmBtnText: 'delete',
+              );
+            },
+            child: Card(
+              child: ListTile(
+                title:
+                    todoList.isDone
+                        ? Text(
+                          todoList.title,
+                          style: GoogleFonts.poppins(
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        )
+                        : Text(todoList.title, style: GoogleFonts.poppins()),
+
+                subtitle: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(todoList.task, style: GoogleFonts.poppins()),
+                ),
+                trailing: Checkbox(
+                  activeColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  value: todoList.isDone,
+                  onChanged:
+                      (value) =>
+                          instanceProvider.isFinishTask(finish: todoList),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+Widget emptyTask() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            'assets/images/empty.png',
+            height: 200.0,
+            width: 200.0,
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        FittedBox(
+          child: Text(
+            'You don\'t have a task !',
+            style: GoogleFonts.poppins(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget floatingButton(BuildContext context) {
+  return FloatingActionButton(
+    backgroundColor: Colors.white,
+
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddTodoPage()),
+      );
+    },
+    child: Icon(Icons.add_task_rounded, color: Colors.blue),
+  );
+}

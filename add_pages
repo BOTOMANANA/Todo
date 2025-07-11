@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:learning_flutter/feature/todo/business/entities/todo_entity.dart';
+import 'package:learning_flutter/feature/todo/presentation/pages/list_todo_page.dart';
+import 'package:learning_flutter/feature/todo/presentation/providers/todo_providers.dart';
+import 'package:learning_flutter/feature/todo/presentation/widgets/text_field_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
+
+class AddTodoPage extends StatefulWidget {
+  const AddTodoPage({super.key});
+
+  @override
+  State<AddTodoPage> createState() => _AddTodoPageState();
+}
+
+class _AddTodoPageState extends State<AddTodoPage> {
+  final _globalKey = GlobalKey<FormState>();
+  final TextEditingController _controllerTitle = TextEditingController();
+  final TextEditingController _controllerTask = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<TodoProviders>(
+      builder: (context, data, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Add todo '),
+            centerTitle: true,
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+          ),
+          body: Center(
+            child: Form(
+              key: _globalKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  textFieldForm(
+                    controller: _controllerTitle,
+                    textLabel: null,
+                    hintText: 'Task title',
+                    icon: Icons.mail,
+                  ),
+
+                  SizedBox(height: 20.0),
+
+                  textFieldForm(
+                    controller: _controllerTask,
+                    textLabel: null,
+                    hintText: 'task name',
+                    icon: Icons.mail,
+                  ),
+                  SizedBox(height: 20.0),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      dynamic titleValue = _controllerTitle.text;
+                      dynamic taskValue = _controllerTask.text;
+
+                      bool isValid = _globalKey.currentState!.validate();
+
+                      if (isValid) {
+                        TodoEntity todo = TodoEntity(
+                          title: titleValue,
+                          task: taskValue,
+                        );
+
+                        data.addTodo(todo: todo);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ListTodoPage(),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: Text(
+                      'Register',
+                      style: GoogleFonts.abel(color: Colors.blue),
+                    ),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.loading,
+                        title: 'is verify ',
+                        text: 'task adding successfully',
+                      );
+                    },
+                    child: child,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+//todo pour avoir une ' il faut utilise le \ backslash simplement
